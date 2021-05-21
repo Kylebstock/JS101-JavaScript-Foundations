@@ -44,50 +44,51 @@ while (true) {
     operation = readline.question();
   }
 
-let output;
-switch (operation) {
-  case '1':
-    output = Number(number1) + Number(number2);
-    break;
-  case '2':
-    output = Number(number1) - Number(number2);
-    break;
-  case '3':
-    output = Number(number1) * Number(number2);
-    break;
-  case '4':
-    output = Number(number1) / Number(number2);
-    break;
-}
-
-prompt(`Wow! That's gonna be tricky!\n=> Give me a second to analyze`);
-
-function syncDelay(milliseconds) {
-  let start = new Date().getTime();
-  let end = 0;
-  while ((end - start) < milliseconds) {
-    end = new Date().getTime();
+  let output;
+  switch (operation) {
+    case '1':
+      output = Number(number1) + Number(number2);
+      break;
+    case '2':
+      output = Number(number1) - Number(number2);
+      break;
+    case '3':
+      output = Number(number1) * Number(number2);
+      break;
+    case '4':
+      output = Number(number1) / Number(number2);
+      break;
   }
-}
 
-syncDelay(1000);
-prompt(`...`);
-syncDelay(1000);
-prompt(`...`);
-syncDelay(1000);
-prompt(`...`);
+  prompt(`Wow! That's gonna be tricky!\n=> Give me a second to analyze`);
 
-syncDelay(1000);
+  // eslint-disable-next-line no-inner-declarations
+  function syncDelay(milliseconds) {
+    let start = new Date().getTime();
+    let end = 0;
+    while ((end - start) < milliseconds) {
+      end = new Date().getTime();
+    }
+  }
 
-prompt(`I've got it!\n=> Drum Roll Please!`);
+  syncDelay(1000);
+  prompt(`...`);
+  syncDelay(1000);
+  prompt(`...`);
+  syncDelay(1000);
+  prompt(`...`);
 
-syncDelay(3000);
+  syncDelay(1000);
 
-prompt(`And the result is:\n=> ${output}!`);
+  prompt(`I've got it!\n=> Drum Roll Please!`);
 
-syncDelay(1000);
+  syncDelay(3000);
 
-prompt(`Phew! That was fun!\n=> Would you like to perform another operation?`);
-let answer = readline.question();
-if (answer[0].toLowerCase() !== 'y') break;
+  prompt(`And the result is:\n=> ${output}!`);
+
+  syncDelay(1000);
+
+  prompt(`Phew! That was fun!\n=> Would you like to perform another operation?`);
+  let answer = readline.question();
+  if (answer[0].toLowerCase() !== 'y') break;
 }
