@@ -40,15 +40,14 @@ syncDelay(2000);
 prompt(`So... let's get to work on that!`);
 syncDelay(2000);
 
-
 while (true) {
   let getLoanAmount = () => {
-    prompt(`${name}, what's the loan amount?`);
+    prompt(`What's the loan amount?`);
     let loanAmount = readline.question();
     loanAmount = convertIntoNumber(loanAmount);
 
-    while (verifyNumber(loanAmount) || loanAmount === 0) {
-      prompt(`${name}, that doesnt appear to be a valid loan amount.\n=> Please entera valid loan amount, e.g., $20,000.00, etc.`);
+    while (verifyNumber(loanAmount) || loanAmount <= 0) {
+      prompt(`That doesnt appear to be a valid loan amount.\n=> Please entera valid loan amount, e.g., $20,000.00, etc.`);
       loanAmount = readline.question();
       loanAmount = convertIntoNumber(loanAmount);
     }
@@ -60,8 +59,8 @@ while (true) {
     let annualPercentRate = readline.question();
     annualPercentRate = convertIntoNumber(annualPercentRate);
 
-    while (verifyNumber(annualPercentRate) || annualPercentRate === 0) {
-      prompt(`${name}, that doesnt appear to be a valid percentage rate.\n=> Please enter a valid percent, e.g., %10 or 10, etc.`);
+    while (verifyNumber(annualPercentRate) || annualPercentRate < 0) {
+      prompt(`That doesnt appear to be a valid percentage rate.\n=> Please enter a valid percent, e.g., %10 or 10, etc.`);
       annualPercentRate = readline.question();
       annualPercentRate = convertIntoNumber(annualPercentRate);
     }
@@ -69,12 +68,13 @@ while (true) {
   };
 
   let getLoanDuration = () => {
-    prompt(`Finally ${name}, how many years is the loan duration?`);
+    prompt(`Finally, how many years is the loan duration?`);
     let yearlyLoanDuration = readline.question();
     yearlyLoanDuration = convertIntoNumber(yearlyLoanDuration);
 
-    while (verifyNumber(yearlyLoanDuration) || yearlyLoanDuration === 0) {
-      prompt(`I'm sorry ${name}, that doesnt appear to be a valid number.\n=> Please enter only numbers, e.g., 15 or 20, etc.`);
+    while (verifyNumber(yearlyLoanDuration) ||
+    (yearlyLoanDuration - Math.floor(yearlyLoanDuration) !== 0)) {
+      prompt(`I'm sorry, that doesnt appear to be a valid loan duration.\n=> Please enter only numbers, e.g., 15 or 20, etc.`);
       yearlyLoanDuration = readline.question();
       yearlyLoanDuration = convertIntoNumber(yearlyLoanDuration);
     }
@@ -87,12 +87,21 @@ while (true) {
 
   let monthlyLoanDuration = getLoanDuration() * 12;
 
-  let monthlyPayment = finalLoanAmount * (monthlyInterestRate /
-    (1 - Math.pow((1 + monthlyInterestRate), (-monthlyLoanDuration))));
+  let calculatePayment = () => {
+    if (monthlyInterestRate === 0 ) {
+      let monthlyPayment = finalLoanAmount / monthlyLoanDuration;
+      return Math.round(monthlyPayment);
+    } else {
+      let monthlyPayment = finalLoanAmount * (monthlyInterestRate /
+      (1 - Math.pow((1 + monthlyInterestRate), (-monthlyLoanDuration))));
+      return Math.round(monthlyPayment);
+    }
+  };
 
-  monthlyPayment = Math.round(monthlyPayment);
+  let loanPayment = calculatePayment();
 
-  prompt(`Okay ${name}, I'm analyzing now...`);
+
+  //prompt(`Okay ${name}, I'm analyzing now...`);
   syncDelay(1000);
   prompt(`...`);
   syncDelay(1000);
@@ -102,9 +111,15 @@ while (true) {
   syncDelay(1000);
   prompt(`I've got it!`);
   syncDelay(2000);
-  prompt(`${name}, the monthly payment is $${monthlyPayment}, over ${monthlyLoanDuration} months.`);
+  prompt(`The monthly payment is $${loanPayment}, over ${monthlyLoanDuration} months.`);
   syncDelay(4000);
   prompt(`Would you like to perform another calculation? (y/n)`);
   let answer = readline.question();
+
+  while (answer[0] !== 'y' && answer[0] !== 'n') {
+    prompt(`Please select "y" or "n"`);
+    answer = readline.question().toLowerCase();
+  }
+
   if (answer[0].toLowerCase() !== 'y') break;
 }
