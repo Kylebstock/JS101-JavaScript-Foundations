@@ -1,7 +1,7 @@
 const readline = require(`readline-sync`);
 
 const VALID_CHOICES = ['rock', 'paper', 'scissors', 'lizard', 'spock'];
-const BEST_OF_FIVE = 3;
+const WIN_SCORE = 3;
 let playAgain = true;
 let userScore = 0;
 let computerScore = 0;
@@ -20,6 +20,7 @@ let getComputersScore = () => {
   computerScore++;
 };
 
+/* Original expand shorthand code
 let expandShorthandInput = (input) => {
   switch (input[0]) {
     case 'r':
@@ -40,12 +41,34 @@ let expandShorthandInput = (input) => {
   }
   return input;
 };
+*/
+
+let expandShorthandInput = (input) => {
+  switch (input.toLowerCase()) {
+    case 'r':
+      input = 'rock';
+      break;
+    case 'p':
+      input = 'paper';
+      break;
+    case 'l':
+      input = 'lizard';
+      break;
+    case 'sp':
+      input = 'spock';
+      break;
+    case 'sc':
+      input = 'scissors';
+      break;
+  }
+  return input.toLowerCase();
+};
 
 let displayWinner = (userChoice, computerChoice) => {
   prompt(`You chose ${userChoice}, and the computer chose ${computerChoice}.`);
 
   if (userChoice === computerChoice) {
-    prompt(`it' a tie!`);
+    prompt(`It' a tie! Try again!`);
   } else if (userChoice === 'rock' && (computerChoice === 'scissors' || computerChoice === 'lizard')) {
     getUsersScore();
   } else if (userChoice === 'paper' && (computerChoice === 'rock' || computerChoice === 'spock')) {
@@ -62,15 +85,15 @@ let displayWinner = (userChoice, computerChoice) => {
 };
 
 let getFinalWinner = (userScore, computerScore) => {
-  if (userScore === BEST_OF_FIVE) {
+  if (userScore === WIN_SCORE) {
     prompt(`You have bested the computer 3 out of 5 time! You are victorious!`);
-  } else if (computerScore === BEST_OF_FIVE) {
+  } else if (computerScore === WIN_SCORE) {
     prompt(`The computer has bested you 3 out of 5 time! The computer is victorious!`);
   }
 };
 
 let gameOver = () => {
-  if ((userScore === BEST_OF_FIVE) || (computerScore === BEST_OF_FIVE)) {
+  if ((userScore === WIN_SCORE) || (computerScore === WIN_SCORE)) {
     return false;
   } else {
     return true;
@@ -82,11 +105,16 @@ let resetGame = () => {
   computerScore = 0;
 };
 
+let yesOrNo = {
+  y: "y",
+  n: "n",
+};
+
 let askToPlayAgain = () => {
   prompt(`Would you like to play again? (y/n)`);
   let answer = readline.question().toLowerCase();
 
-  while (answer[0] !== 'y' && answer[0] !== 'n') {
+  while (!yesOrNo[answer]) { // previous code: (answer[0] !== 'y' && answer[0] !== 'n')
     prompt(`Please select "y" or "n"`);
     answer = readline.question().toLowerCase();
   }
@@ -95,9 +123,13 @@ let askToPlayAgain = () => {
   } else {
     playAgain = false;
   }
+  return playAgain;
 };
 
 do {
+  prompt(`Welcome to Rock, Paper, Scissors, Lizard Spock!`);
+  prompt(`You will be playing best 3-out-of-5 against the computer.\n=> The first to 3 points will win the game!`);
+
   do {
     prompt(`Please choose one: ${VALID_CHOICES.join(', ')}`);
     let userChoice = expandShorthandInput(readline.question());
@@ -119,8 +151,8 @@ do {
 
   } while (gameOver());
 
-  askToPlayAgain();
+  playAgain = askToPlayAgain();
   resetGame();
+  console.clear();
 
-// eslint-disable-next-line no-unmodified-loop-condition
 } while (playAgain);
