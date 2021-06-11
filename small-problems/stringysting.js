@@ -4,7 +4,7 @@
 
 let stringy = integer => {
   let result = "";
-  if (integer < 0 ) {
+  if (integer <= 0 ) {
     console.log(`Please use a positive integer.`);
   }
   for (let counter = 0; counter < integer; counter ++) {
