@@ -50,10 +50,11 @@ let arr1 = [
   { e: [8], f: [6, 10] },
 ];
 
-let newArr1 = arr1.forEach(obj => {
-  for (let key in obj) {
-    return obj[key].map(arr => arr.filter(num => num % 2 === 0));
-  }
-})
+arr.filter(obj => {
+  return Object.values(obj).every(subArr => {
+    return subArr.every(num => num % 2 === 0);
+  });
+});
 
-console.log(newArr1);
+// => [ { e: [ 8 ], f: [ 6, 10 ] } ]
+
