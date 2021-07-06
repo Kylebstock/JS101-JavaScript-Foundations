@@ -1,31 +1,37 @@
-//initialize (shuffle) deck
-//deal cards to player and dealer
-//player chooses to stay or hit
-  // - repeat until stay or bust
-  // - if bust then dealer wins
-//dealer chooses to stay or hit
-  // - repeat until at least greater than 17 or bust
-  // - if dealer bust then player wins
-//compare cards and delclare winner
-
 let readline = require('readline-sync');
 
 let prompt = (message) => {
   console.log(`=> ${message}`);
 };
 
-const CARD_SUITS = ['hearts', 'diamonds', 'spades', 'clubs'];
+const CARD_SUITS = ['hearts', 'diamond', 'spades', 'clubs'];
 const CARD_FACE_VALUE = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'jack', 'queen', 'king', 'ace'];
+let playersHand = [];
+let dealersHand = [];
+let activeDeck = [];
+let playAgain;
 
-let shuffleDeck = (array) => {
+let shuffleArray = (array) => { //function to shuffle array of values but will mutate array.
   for (let index = array.length - 1; index > 0; index--) {
     let otherIndex = Math.floor(Math.random() * (index + 1)); // 0 to index
     [array[index], array[otherIndex]] = [array[otherIndex], array[index]]; // swap elements
   }
   return array;
-}
+};
 
+let shuffleTheDeck = () => { //function to shuffle the suits and values; wont mutate original array.
+  let shuffledDeck = [];
 
+  for (let sIndex = 0; sIndex < CARD_SUITS.length; sIndex++) {
+    let cardSuits = CARD_SUITS[sIndex];
+
+    for (let vIndex = 0; vIndex < CARD_FACE_VALUE.length; vIndex++) {
+      let cardValues = CARD_FACE_VALUE[vIndex];
+      shuffledDeck.push([cardSuits, cardValues]);
+    }
+  }
+  return shuffleArray(shuffledDeck);
+};
 
 let calculateCardsInHand = (cards) => {
   //cards = [['hearts', '3'], ['clubs', '7'], ['spades', 'jack'], etc.]
@@ -49,9 +55,12 @@ let calculateCardsInHand = (cards) => {
   return sum;
 };
 
+let checkForBust = (cards) => {
+  return calculateCardsInHand(cards) > 21;
+};
 
-/*
 let askToHitOrStay = () => {
+  let feelingLucky;
   prompt(`Do you want to hit or stay?`);
   let playerAnswer = readline.question().toLowerCase();
   let checkAnswer = ['s', 'h', 'stay', 'hit'];
@@ -60,29 +69,111 @@ let askToHitOrStay = () => {
     prompt(`please type either "hit", "stay" or "h", "s"`);
     playerAnswer = readline.question().toLowerCase();
   }
-}
-*/
 
-let dealCardsToPlayer = (CARD_FACE_VALUE) => {
-  let firstCard = Math.floor(Math.random() * (CARD_FACE_VALUE + 1));
-  let secondCard = Math.floor(Math.random() * (index2 + 1));
-  prompt(`You have an ${firstCard}, and an ${secondCard}`);
-}
+  if (playerAnswer === 'h' || playerAnswer === 'hit') {
+    feelingLucky = true;
+  } else {
+    feelingLucky = false;
+  }
+  return feelingLucky;
+};
 
-shuffleDeck(CARD_FACE_VALUE);
+let checkForWinningHand = (playersHand, dealersHand) => {
+  let playersTotal = calculateCardsInHand(playersHand);
+  let dealersTotal = calculateCardsInHand(dealersHand);
 
-dealCardsToPlayer(CARD_FACE_VALUE, CARD_FACE_VALUE);
+  if (playersTotal > 21) {
+    return 'PLAYER_BUSTED';
+  } else if (dealersTotal > 21) {
+    return 'DEALER_BUSTED';
+  } else if (playersTotal > dealersTotal) {
+    return 'PLAYER_WINS';
+  } else if (playersTotal < dealersTotal) {
+    return 'DEALER_WINS';
+  } else {
+    return 'TIE_GAME';
+  }
+};
 
-/*
-while (true) {
-  prompt("do you want to hit or stay?");
+let displayResults = (dealersHand, playersHand) => {
+  let result = checkForWinningHand(dealersHand, playersHand);
+
+  switch (result) {
+    case 'PLAYER_BUSTED':
+      prompt('You busted! Dealer wins!');
+      break;
+    case 'DEALER_BUSTED':
+      prompt('Dealer busted! You win!');
+      break;
+    case 'PLAYER_WINS':
+      prompt('You win!');
+      break;
+    case 'DEALER_WINS':
+      prompt('Dealer wins!');
+      break;
+    case 'TIE_GAME':
+      prompt("It's a tie!");
+  }
+};
+
+let dealTwoCards = () => {
+  return [activeDeck.pop(), activeDeck.pop()];
+};
+
+let askToPlayAgain = () => {
+  prompt(`Would you like to play again? (y/n)`);
   let playerAnswer = readline.question().toLowerCase();
-  if (playerAnswer === 'stay' || busted()) break;
-}
+  while (!['y', 'n'].includes(playerAnswer)) {
+    prompt(`Please select "y" or "n"`);
+    playerAnswer = readline.question().toLowerCase();
+  }
+  if (playerAnswer === 'y') {
+    playAgain = true;
+  } else {
+    playAgain = false;
+  }
+  return playAgain;
+};
 
-if (busted()) {
-  // probably end the game? or ask the user to play again?
-} else {
-  prompt("You chose to stay!");  // if player didn't bust, must have stayed to get here
+let enterToContinue = () => { //pause the flow of the game; aesthetic detail.
+  prompt(`Press 'Enter' to continue.`);
+  let userInput = readline.question();
+
+  while (userInput === false) {
+    prompt(`Please press 'Enter' to continue`);
+    userInput = readline.question();
+  }
+};
+
+let resetHands = () => {
+  playersHand = [];
+  dealersHand = [];
+};
+
+
+while (true) {
+  prompt(`Welcome to 21! May the odd be ever in your favor!`);
+  enterToContinue();
+
+  activeDeck = shuffleTheDeck();
+  playersHand = [];
+  dealersHand = [];
+
+  playersHand.push(...dealTwoCards(activeDeck));
+  dealersHand.push(...dealTwoCards(activeDeck));
+
+  prompt(`You have a ${playersHand[0][1]} of ${playersHand[0][0]}, and a ${playersHand[1][1]} of ${playersHand[1][0]}`);
+  prompt(`The dealer has a ${dealersHand[0][1]} of ${dealersHand[0][0]}, and ???`);
+
+  while (true) {
+    let playersTurn;
+    while (true) {
+      prompt(`Now, you've got to ask yourself one question: 'do I feel lucky? well... do ya?'`);
+      prompt(`press 'h' to hit, or 's' to stay.`);
+      playersTurn = readline.question().toLowerCase();
+      if (['h', 's'].includes(playersTurn)) break;
+      prompt(`Sorry, please press 'h' to hit, or 's' to stay.`);
+    }
+    
+  }
 }
-*/

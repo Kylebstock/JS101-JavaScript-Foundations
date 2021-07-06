@@ -1,9 +1,10 @@
-
+/* eslint-disable max-statements */
+/* eslint-disable max-lines-per-function */
 const readline = require('readline-sync');
 
 const prompt = (message) => {
   console.log(`=> ${message}`);
-}
+};
 const INITIAL_MARKER = ' ';
 const HUMAN_MARKER = 'X';
 const COMPUTER_MARKER = 'O';
@@ -18,12 +19,20 @@ let userScore = 0;
 let computerScore = 0;
 let tieGameScore = 0;
 let winningPlayer;
+let playAgain;
 
+let displayScores = () => {
+  console.log(`Player 1's score: ${userScore}
+Player 2's score: ${computerScore}
+Tie games score: ${tieGameScore}`);
+};
+
+// eslint-disable-next-line max-statements
 let displayBoard = (board) => {
   console.clear();
   console.log(`You are '${HUMAN_MARKER}', and the computer is '${COMPUTER_MARKER}':`);
   console.log(''); // aesthetic spacing
-  
+
   displayScores();
 
   console.log(''); // aesthetic spacing
@@ -43,7 +52,7 @@ let displayBoard = (board) => {
 
 let initializeBoard = () => {
   let board = {};
-  for (let square = 1; square <= 9; square ++) {
+  for (let square = 1; square <= 9; square++) {
     board[String(square)] = INITIAL_MARKER;
   }
   return board;
@@ -55,10 +64,6 @@ let emptySquares = (board) => {
 
 let boardFull = (board) => {
   return emptySquares(board).length === 0;
-};
-
-let someoneWon = (board) => {
-  return !!detectWinner(board);
 };
 
 let detectWinner = (board) => {
@@ -82,6 +87,10 @@ let detectWinner = (board) => {
   return null;
 };
 
+let someoneWon = (board) => {
+  return !!detectWinner(board);
+};
+
 let findAtRiskSquares = (line, board, marker) => {
   let markersInLine = line.map(square => board[square]);
 
@@ -97,7 +106,9 @@ let findAtRiskSquares = (line, board, marker) => {
 let checkForGameOver = () => {
   if (tieGameScore === TIE_GAME_LIMIT) {
     return false;
-  } else if (userScore === FINAL_SERIES_SCORE || computerScore === FINAL_SERIES_SCORE) {
+  } else if (userScore === FINAL_SERIES_SCORE) {
+    return false;
+  } else if (computerScore === FINAL_SERIES_SCORE) {
     return false;
   } else {
     return true;
@@ -126,7 +137,7 @@ let joinOr = (arrayInput, delimiter = ', ', lastWord = 'or') => {
     case 2:
       return arrayInput.join(` ${lastWord} `);
     default:
-      return arrayInput.slice(0, arrayInput.length - 1).join(delimiter) + `${delimiter}${lastWord} ${arrayInput[arrayInput.length -1]}`;
+      return arrayInput.slice(0, arrayInput.length - 1).join(delimiter) + `${delimiter}${lastWord} ${arrayInput[arrayInput.length - 1]}`;
   }
 };
 
@@ -143,17 +154,16 @@ let playerChoosesSquare = (board) => {
   board[square] = HUMAN_MARKER;
 };
 
+// eslint-disable-next-line max-statements
 let computerChoosesSquare = (board) => {
   let square;
-
-//offensive move
+  //offensive move
   for (let index = 0; index < WINNING_LINES.length; index++) {
     let line = WINNING_LINES[index];
     square = findAtRiskSquares(line, board, COMPUTER_MARKER);
     if (square) break;
   }
-
-//defensive move
+  //defensive move
   if (!square) {
     for (let index = 0; index < WINNING_LINES.length; index++) {
       let line = WINNING_LINES[index];
@@ -161,25 +171,17 @@ let computerChoosesSquare = (board) => {
       if (square) break;
     }
   }
-
-//pick square 5 first if available
+  //pick square 5 first if available
   if (!square && board[5] === INITIAL_MARKER) {
     square = '5';
   }
-
-//pick random square if other options are false
-  if (!square) {    
+  //pick random square if other options are false
+  if (!square) {
     let randomIndex = Math.floor(Math.random() * emptySquares(board).length);
     square = emptySquares(board)[randomIndex];
   }
 
   board[square] = COMPUTER_MARKER;
-};
-
-let displayScores = () => {
-  console.log(`Player 1's score: ${userScore}
-Player 2's score: ${computerScore}
-Tie games score: ${tieGameScore}`);
 };
 
 let answerYesOrNo = {
@@ -190,10 +192,10 @@ let answerYesOrNo = {
 let enterToContinue = () => { //pause the flow of the game; aesthetic detail.
   prompt(`Press 'Enter' to continue.`);
   let userInput = readline.question();
-  
+
   while (userInput === false) {
     prompt(`Please press any key and 'Enter'`);
-    answer = readline.question();
+    userInput = readline.question();
   }
 };
 
@@ -214,14 +216,14 @@ let askToPlayAgain = () => {
 };
 
 let congratsToWinner = (input) => {
-  prompt(`And the winner is (drum roll please) ... ${input}`)
+  prompt(`And the winner is (drum roll please) ... ${input}`);
 };
 
 let resetGame = () => {
   userScore = 0;
   computerScore = 0;
   tieGameScore = 0;
-}
+};
 
 let updateScores = board => {
   if (detectWinner(board) === 'Player') {
@@ -229,14 +231,14 @@ let updateScores = board => {
   } else if (detectWinner(board) === 'Computer') {
     computerScore++;
   }
-}
+};
 
+// eslint-disable-next-line max-statements
 let chooseWhoMovesFirst = (board) => {
-  prompt(`Who will go first? "p" for player; "c" for computer; "r" for random.`);
+  prompt(`Who should go first? press "p" for player, press "c" for computer, or press "r" for random.`);
   let choseFirstMove = readline.question().toLowerCase();
-  let heWhoMovesFirst = ['p', 'c', 'r'];
 
-  while (!heWhoMovesFirst.includes(choseFirstMove)) {
+  while (!['p', 'c', 'r'].includes(choseFirstMove)) {
     prompt(`Please Select "p" for player, "c" for computer, or "r" for random.`);
     choseFirstMove = readline.question().toLowerCase();
   }
@@ -269,38 +271,38 @@ do {
   greetPlayer();
   enterToContinue();
 
-do {
-  let board = initializeBoard();
-  displayBoard(board);
-  chooseWhoMovesFirst(board);
+  do {
+    let board = initializeBoard();
+    displayBoard(board);
+    chooseWhoMovesFirst(board);
 
-while (true) {
+    while (true) {
 
-  computerChoosesSquare(board);
-  if (someoneWon(board) || boardFull(board)) break;
+      computerChoosesSquare(board);
+      if (someoneWon(board) || boardFull(board)) break;
 
-  displayBoard(board);
+      displayBoard(board);
 
-  playerChoosesSquare(board);
-  if (someoneWon(board) || boardFull(board)) break;
-};
+      playerChoosesSquare(board);
+      if (someoneWon(board) || boardFull(board)) break;
+    }
 
-updateScores(board);
+    updateScores(board);
 
-displayBoard(board);
+    displayBoard(board);
 
-if (someoneWon(board)) {
-  prompt(`The ${detectWinner(board)} won!`);
-} else {
-  prompt(`The round was a draw!`);
-  tieGameScore++;
-};
+    if (someoneWon(board)) {
+      prompt(`The ${detectWinner(board)} won!`);
+    } else {
+      prompt(`The round was a draw!`);
+      tieGameScore++;
+    }
 
-enterToContinue();
+    enterToContinue();
 
-displayBoard(board);
+    displayBoard(board);
 
-} while (checkForGameOver());
+  } while (checkForGameOver());
 
   congratsToWinner(checkForWhoWon());
 
