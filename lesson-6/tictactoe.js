@@ -1,5 +1,3 @@
-/* eslint-disable max-statements */
-/* eslint-disable max-lines-per-function */
 const readline = require('readline-sync');
 
 const prompt = (message) => {
@@ -10,6 +8,7 @@ const HUMAN_MARKER = 'X';
 const COMPUTER_MARKER = 'O';
 const FINAL_SERIES_SCORE = 5;
 const TIE_GAME_LIMIT = 5;
+const MIDDLE_SQUARE = 5;
 const WINNING_LINES = [
   [1, 2, 3], [4, 5, 6], [7, 8, 9],
   [1, 4, 7], [2, 5, 8], [3, 6, 9],
@@ -20,6 +19,7 @@ let computerScore = 0;
 let tieGameScore = 0;
 let winningPlayer;
 let playAgain;
+let quit;
 
 let displayScores = () => {
   console.log(`Player 1's score: ${userScore}
@@ -27,16 +27,13 @@ Player 2's score: ${computerScore}
 Tie games score: ${tieGameScore}`);
 };
 
-// eslint-disable-next-line max-statements
 let displayBoard = (board) => {
   console.clear();
-  console.log(`You are '${HUMAN_MARKER}', and the computer is '${COMPUTER_MARKER}':`);
-  console.log(''); // aesthetic spacing
+  console.log(`You are '${HUMAN_MARKER}', and the computer is '${COMPUTER_MARKER}':\n`);
 
   displayScores();
 
-  console.log(''); // aesthetic spacing
-  console.log('1)     |2)     |3)');
+  console.log('\n1)     |2)     |3)');
   console.log(`   ${board['1']}   |   ${board['2']}   |   ${board['3']}`);
   console.log('       |       |');
   console.log('-------+-------+-----');
@@ -46,8 +43,7 @@ let displayBoard = (board) => {
   console.log('-------+-------+-----');
   console.log('7)     |8)     |9)');
   console.log(`   ${board['7']}   |   ${board['8']}   |   ${board['9']}`);
-  console.log('       |       |');
-  console.log(''); // aesthetic spacing
+  console.log('       |       |\n');
 };
 
 let initializeBoard = () => {
@@ -103,7 +99,7 @@ let findAtRiskSquares = (line, board, marker) => {
   return null;
 };
 
-let checkForGameOver = () => {
+let isGameOver = () => {
   if (tieGameScore === TIE_GAME_LIMIT) {
     return false;
   } else if (userScore === FINAL_SERIES_SCORE) {
@@ -137,7 +133,8 @@ let joinOr = (arrayInput, delimiter = ', ', lastWord = 'or') => {
     case 2:
       return arrayInput.join(` ${lastWord} `);
     default:
-      return arrayInput.slice(0, arrayInput.length - 1).join(delimiter) + `${delimiter}${lastWord} ${arrayInput[arrayInput.length - 1]}`;
+      return arrayInput.slice(0, arrayInput.length - 1).join(delimiter) +
+      `${delimiter}${lastWord} ${arrayInput[arrayInput.length - 1]}`;
   }
 };
 
@@ -154,7 +151,6 @@ let playerChoosesSquare = (board) => {
   board[square] = HUMAN_MARKER;
 };
 
-// eslint-disable-next-line max-statements
 let computerChoosesSquare = (board) => {
   let square;
   //offensive move
@@ -173,7 +169,7 @@ let computerChoosesSquare = (board) => {
   }
   //pick square 5 first if available
   if (!square && board[5] === INITIAL_MARKER) {
-    square = '5';
+    square = MIDDLE_SQUARE;
   }
   //pick random square if other options are false
   if (!square) {
@@ -184,35 +180,36 @@ let computerChoosesSquare = (board) => {
   board[square] = COMPUTER_MARKER;
 };
 
-let answerYesOrNo = {
-  y: "y",
-  n: "n",
-};
-
 let enterToContinue = () => { //pause the flow of the game; aesthetic detail.
   prompt(`Press 'Enter' to continue.`);
-  let userInput = readline.question();
+  let userInput = readline.question().toLowerCase();
 
   while (userInput === false) {
-    prompt(`Please press any key and 'Enter'`);
-    userInput = readline.question();
+    prompt(`Please press 'Enter' or any key.`);
+    userInput = readline.question().toLowerCase();
   }
+};
+
+let askToQuit = () => {
+  prompt(`Would you like to continue or call it quits now? Press "c" to continue, "q" to quit.`);
+  let answer = readline.question().toLowerCase();
+
+  while (!['c', 'q', 'continue', 'quit'].includes(answer)) {
+    prompt(`Please select "c" to continue or "q" to quit.`);
+    answer = readline.question().toLowerCase();
+  }
+  return answer[0] === 'c';
 };
 
 let askToPlayAgain = () => {
-  prompt(`Would you like to play again? (y/n)`);
+  prompt(`Would you like to play again? (yes/no)`);
   let answer = readline.question().toLowerCase();
 
-  while (!answerYesOrNo[answer]) {
-    prompt(`Please select "y" or "n"`);
+  while (!['y', 'n', 'yes', 'no'].includes(answer)) {
+    prompt(`Please select "yes" or "no"`);
     answer = readline.question().toLowerCase();
   }
-  if (answer[0] === 'y') {
-    playAgain = true;
-  } else {
-    playAgain = false;
-  }
-  return playAgain;
+  return answer[0] === 'y';
 };
 
 let congratsToWinner = (input) => {
@@ -233,7 +230,24 @@ let updateScores = board => {
   }
 };
 
-// eslint-disable-next-line max-statements
+let randomMove = (playerInput, board) => {
+  if (playerInput === "r") {
+    let randomFirstMove = Math.floor(Math.random() * 2);
+    if (randomFirstMove === 0) {
+      prompt(`The Player will go first!`);
+      playerChoosesSquare(board);
+    } else {
+      prompt(`The Computer will go first!`);
+      enterToContinue();
+    }
+  } else if (playerInput === "p") {
+    prompt(`The Player will go first!`);
+    playerChoosesSquare(board);
+  } else {
+    prompt(`The Computer will go first!`);
+  }
+};
+
 let chooseWhoMovesFirst = (board) => {
   prompt(`Who should go first? press "p" for player, press "c" for computer, or press "r" for random.`);
   let choseFirstMove = readline.question().toLowerCase();
@@ -243,31 +257,19 @@ let chooseWhoMovesFirst = (board) => {
     choseFirstMove = readline.question().toLowerCase();
   }
 
-  if (choseFirstMove === "r") {
-    let randomFirstMove = Math.floor(Math.random() * 2);
-    if (randomFirstMove === 0) {
-      prompt(`The Player will go first!`);
-      playerChoosesSquare(board);
-    } else {
-      prompt(`The Computer will go first!`);
-      enterToContinue();
-    }
-  } else if (choseFirstMove === "p") {
-    prompt(`The Player will go first!`);
-    playerChoosesSquare(board);
-  } else {
-    prompt(`The Computer will go first!`);
-  }
+  randomMove(choseFirstMove, board);
+
 };
 
 let greetPlayer = () => {
   prompt(`Welcome to Tic-Tac-Toe!`);
   prompt(`The first one to fill 3 squares in a row wins the round.`);
-  prompt(`And the first one to win 5 rounds will win the game!`);
+  prompt(`And the first one to win ${FINAL_SERIES_SCORE} rounds will win the game!`);
 };
 
 
 do {
+  console.clear();
   greetPlayer();
   enterToContinue();
 
@@ -298,11 +300,11 @@ do {
       tieGameScore++;
     }
 
-    enterToContinue();
+    quit = askToQuit();
 
     displayBoard(board);
 
-  } while (checkForGameOver());
+  } while (isGameOver() && quit);
 
   congratsToWinner(checkForWhoWon());
 
