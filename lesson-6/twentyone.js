@@ -7,8 +7,8 @@ let prompt = (message) => {
 const CARD_SUITS = ['Hearts', 'Diamonds', 'Spades', 'Clubs'];
 const CARD_FACE_VALUE = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King', 'Ace'];
 const WINNING_NUMBER = 21;
-const MAX_PLAYER_SCORE = 20;
-const STARTING_PLAYER_SCORE = 10;
+const MAX_PLAYER_SCORE = 200;
+const STARTING_PLAYER_SCORE = 100;
 let playersHand = [];
 let dealersHand = [];
 let activeDeck = [];
@@ -41,7 +41,6 @@ let shuffleTheDeck = () => { //function to shuffle the suits and values; wont mu
 let calculateCardsInHand = (cards) => {
   //cards = [['hearts', '3'], ['clubs', '7'], ['spades', 'jack'], etc.]
   let cardValues = cards.map(card => card[1]);
-
   let sum = 0;
   cardValues.forEach(value => {
     if (value === 'Ace') {
@@ -56,7 +55,6 @@ let calculateCardsInHand = (cards) => {
   cardValues.filter(value => value === "Ace").forEach(_ => {
     if (sum > WINNING_NUMBER) sum -= 10; //filter for aces, and turns each one to "1" until sum is less than 21
   });
-
   return sum;
 };
 
@@ -323,7 +321,7 @@ do {
     toContinue = readline.question().toLowerCase();
   }
 
-  if (!'y'.includes(toContinue)) break;
+  if (!['y', 'yes'].includes(toContinue)) break;
 
 } while (true);
 
