@@ -151,14 +151,26 @@ let playerChoosesSquare = (board) => {
   board[square] = HUMAN_MARKER;
 };
 
+let offensiveMove = (board) => {
+  let square;
+  for (let index = 0; index < WINNING_LINES.length; index++) {
+    let line = WINNING_LINES[index];
+    square = findAtRiskSquares(line, board, COMPUTER_MARKER);
+  }
+  return square;
+};
+
 let computerChoosesSquare = (board) => {
   let square;
+  square = offensiveMove(board);
+  /*
   //offensive move
   for (let index = 0; index < WINNING_LINES.length; index++) {
     let line = WINNING_LINES[index];
     square = findAtRiskSquares(line, board, COMPUTER_MARKER);
     if (square) break;
   }
+  */
   //defensive move
   if (!square) {
     for (let index = 0; index < WINNING_LINES.length; index++) {
